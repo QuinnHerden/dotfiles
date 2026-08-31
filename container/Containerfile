@@ -42,7 +42,7 @@ ENV PATH="/home/dev/.npm-global/bin:/home/dev/.local/bin:/home/dev/.nix-profile/
 
 # Enable flakes globally
 RUN mkdir -p /home/dev/.config/nix \
-    && echo "experimental-features = nix-command flakes" > /home/dev/.config/nix/nix.conf
+    && printf 'experimental-features = nix-command flakes\ndownload-attempts = 20\n' > /home/dev/.config/nix/nix.conf
 
 # --- Pre-fetch flake inputs (the big download) ---
 # Copy only what `nix flake archive` needs to resolve inputs: the lockfile, the
@@ -60,7 +60,7 @@ RUN cd /home/dev/.dotfiles/nix && nix flake archive --no-write-lock-file
 # home-manager input, not a floating `nix run nixpkgs#home-manager`.
 COPY --chown=dev:dev nix /home/dev/.dotfiles/nix
 RUN set -eu; cd /home/dev/.dotfiles/nix \
-    && out=$(nix build --no-link --print-out-paths '.#homeConfigurations."dev@dev-container".activationPackage') \
+    && out=$(nix build --no-link --print-out-paths --fallback '.#homeConfigurations."dev@dev-container".activationPackage') \
     && "$out/activate"
 
 # --- Copy the rest of the dotfiles tree (private/ and .git excluded; see
