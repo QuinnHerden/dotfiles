@@ -15,6 +15,7 @@
       stylua
       uv
       wget
+      whisper-cpp
       yarn
       bat
       curlie
